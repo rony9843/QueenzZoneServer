@@ -15,6 +15,8 @@ app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("this is home page and it is queenz zone main server api");
+
+  console.log("this is call home page");
 });
 
 const client = new MongoClient(uri, {
@@ -171,9 +173,12 @@ client.connect((err) => {
   app.get("/queenZoneFindAllProduct", function (req, res) {
     const newData = req.body;
 
+    console.log("this is call all product -> ");
+
     queenZoneProduct.find().toArray(function (err, result) {
       //    // ~  console.log("this is find result 4", result);
       res.send(result);
+      console.log("this is all product -> ", result);
     });
   });
 
@@ -1102,6 +1107,289 @@ client.connect((err) => {
       .then(function (result) {
         res.send(result);
       });
+  });
+
+  // ====================================== Swipeable Carousel ===========================
+
+  const queenZoneComponentsSwipeableCarousel = client
+    .db("QueenZ-Zone")
+    .collection("SwipeableCarousel");
+
+  // post rating
+  app.post("/queenZoneSwipeableCarousel", (req, res) => {
+    const componentsSection = req.body.componentsSection;
+
+    // insert Database
+    queenZoneComponentsSwipeableCarousel
+      .insertOne({ componentsSection })
+      .then(function (result) {
+        // process result
+        console.log(result);
+        res.send(result);
+      });
+  });
+
+  // read all Swipeable Carousel
+  app.get("/queenZoneReadSwipeableCarousel", function (req, res) {
+    queenZoneComponentsSwipeableCarousel.find().toArray(function (err, result) {
+      res.send(result);
+    });
+  });
+
+  // edit
+  app.post("/queenZoneReadSwipeableCarouselUpdate", function (req, res) {
+    const componentsSection = req.body;
+    console.log(componentsSection);
+
+    queenZoneComponentsSwipeableCarousel
+      .updateOne(
+        { _id: ObjectId(componentsSection.componentsSection.dbId) },
+        {
+          $set: {
+            "componentsSection.Name": componentsSection.componentsSection.Name,
+            "componentsSection.type": "SwipeableCarousel",
+            "componentsSection.id": componentsSection.componentsSection.id,
+
+            "componentsSection.boxBgClr":
+              componentsSection.componentsSection.boxBgClr,
+            "componentsSection.boxBorRa":
+              componentsSection.componentsSection.boxBorRa,
+            "componentsSection.boxMt":
+              componentsSection.componentsSection.boxMt,
+            "componentsSection.boxMb":
+              componentsSection.componentsSection.boxMb,
+            "componentsSection.boxPt":
+              componentsSection.componentsSection.boxPt,
+            "componentsSection.boxPt":
+              componentsSection.componentsSection.boxPt,
+            "componentsSection.boxPb":
+              componentsSection.componentsSection.boxPb,
+            "componentsSection.boxShowMobileDevice":
+              componentsSection.componentsSection.boxShowMobileDevice,
+            "componentsSection.boxShowDesktopDevice":
+              componentsSection.componentsSection.boxShowDesktopDevice,
+            "componentsSection.boxTitle":
+              componentsSection.componentsSection.boxTitle,
+            "componentsSection.boxTitleBtnTxt":
+              componentsSection.componentsSection.boxTitleBtnTxt,
+            "componentsSection.boxTitleBtnClr":
+              componentsSection.componentsSection.boxTitleBtnClr,
+            "componentsSection.boxTitleMt":
+              componentsSection.componentsSection.boxTitleMt,
+            "componentsSection.boxTitleMb":
+              componentsSection.componentsSection.boxTitleMb,
+            "componentsSection.boxTitlePt":
+              componentsSection.componentsSection.boxTitlePt,
+            "componentsSection.boxTitlePb":
+              componentsSection.componentsSection.boxTitlePb,
+            "componentsSection.boxMobileView":
+              componentsSection.componentsSection.boxMobileView,
+            "componentsSection.boxDesktopView":
+              componentsSection.componentsSection.boxDesktopView,
+            "componentsSection.boxTitleImageMt":
+              componentsSection.componentsSection.boxTitleImageMt,
+            "componentsSection.boxTitleImageMb":
+              componentsSection.componentsSection.boxTitleImageMb,
+            "componentsSection.boxTitleImagePt":
+              componentsSection.componentsSection.boxTitleImagePt,
+            "componentsSection.boxTitleImagePb":
+              componentsSection.componentsSection.boxTitleImagePb,
+            "componentsSection.titleImageBtnTarget":
+              componentsSection.componentsSection.titleImageBtnTarget,
+            "componentsSection.link": componentsSection.componentsSection.link,
+            "componentsSection.btnBgClr":
+              componentsSection.componentsSection.btnBgClr,
+            "componentsSection.btnText":
+              componentsSection.componentsSection.btnText,
+          },
+        }
+      )
+      .then(function (result) {
+        // process result
+        console.log(result);
+        res.send(result);
+      });
+  });
+
+  /// delete product static banner
+  app.post("/queenZoneDeleteSwipeableCarousel", (req, res) => {
+    const componentsLayoutId = req.body.id;
+
+    queenZoneComponentsSwipeableCarousel
+      .deleteOne({ _id: ObjectId(componentsLayoutId) })
+
+      .then(function (result) {
+        res.send(result);
+      });
+  });
+
+  // ================================= Top 20 =================================
+
+  const queenzZoneTop20 = client.db("QueenZ-Zone").collection("Top20");
+
+  // post rating
+  app.post("/queenZonePostTop20", (req, res) => {
+    const cateTop20 = req.body.top20;
+    console.log("log ->> ", cateTop20);
+
+    queenzZoneTop20
+      .find({ "cateTop20.cate": cateTop20.cate })
+      .toArray(function (err, result) {
+        console.log("this is result : -> ", !result.length);
+
+        if (!result.length === false) {
+          // exist
+          queenzZoneTop20
+            .updateOne(
+              { "cateTop20.cate": cateTop20.cate },
+              {
+                $set: {
+                  "cateTop20.productsId": cateTop20.productsId,
+                },
+              }
+            )
+            .then(function (result) {
+              // process result
+              console.log("data paisi -> ", result);
+              res.send(result);
+            });
+        } else {
+          // not in exist
+          // insert Database
+          queenzZoneTop20.insertOne({ cateTop20 }).then(function (result) {
+            // process result
+            console.log("new Data -->", result);
+            res.send(result);
+          });
+        }
+      });
+  });
+
+  // read all Swipeable Carousel
+  app.get("/queenZoneReadTop20", function (req, res) {
+    queenzZoneTop20.find().toArray(function (err, result) {
+      res.send(result);
+    });
+  });
+
+  // ================================= Create Page =================================
+
+  const queenzZoneCreatePage = client
+    .db("QueenZ-Zone")
+    .collection("CreatePage");
+
+  // post Create page
+  app.post("/queenZoneCreatePage", (req, res) => {
+    const createPage = req.body.createPage;
+
+    // insert Database
+    queenzZoneCreatePage.insertOne({ createPage }).then(function (result) {
+      // process result
+      console.log(result);
+      res.send(result);
+    });
+  });
+
+  // ================================= Create product cards =================================
+
+  const queenzZoneCreateProductCards = client
+    .db("QueenZ-Zone")
+    .collection("ProductCards");
+
+  // post Create page
+  app.post("/queenzZoneCreateProductCards", (req, res) => {
+    const componentsSection = req.body.componentsSection;
+
+    // insert Database
+    queenzZoneCreateProductCards
+      .insertOne({ componentsSection })
+      .then(function (result) {
+        // process result
+        console.log(result);
+        res.send(result);
+      });
+  });
+
+  // read all
+  app.get("/queenzZoneReadProductCards", function (req, res) {
+    queenzZoneCreateProductCards.find().toArray(function (err, result) {
+      res.send(result);
+    });
+  });
+
+  /// delete product static banner
+  app.post("/queenzZoneDeleteProductCards", (req, res) => {
+    const componentsLayoutId = req.body.id;
+    console.log(componentsLayoutId);
+
+    queenzZoneCreateProductCards
+      .deleteOne({ _id: ObjectId(componentsLayoutId) })
+
+      .then(function (result) {
+        res.send(result);
+        console.log(result);
+      });
+  });
+
+  app.post("/queenzZoneEditProductCards", (req, res) => {
+    const queenzZoneEditProductCards = req.body.componentsSection;
+    // ~  console.log(editedProduct);
+    // insert Database
+
+    queenzZoneCreateProductCards
+      .updateOne(
+        { _id: ObjectId(queenzZoneEditProductCards.id) },
+        {
+          $set: {
+            "componentsSection.pageName": queenzZoneEditProductCards.pageName,
+            "componentsSection.mt": queenzZoneEditProductCards.mt,
+            "componentsSection.mb": queenzZoneEditProductCards.mb,
+            "componentsSection.pt": queenzZoneEditProductCards.pt,
+            "componentsSection.pb": queenzZoneEditProductCards.pb,
+            "componentsSection.borRa": queenzZoneEditProductCards.borRa,
+            "componentsSection.bgClr": queenzZoneEditProductCards.bgClr,
+            "componentsSection.components":
+              queenzZoneEditProductCards.components,
+          },
+        }
+      )
+      .then(function (result) {
+        // process result
+        // ~  console.log(result);
+        res.send(result);
+      });
+  });
+
+  // ================================= home page layout =======================
+  const queenzZoneHomePageLayout = client
+    .db("QueenZ-Zone")
+    .collection("HomePageLayout");
+
+  app.post("/queenZoneHomePageLayout", (req, res) => {
+    const homePageLayout = req.body.Layout;
+
+    // insert Database
+    queenzZoneHomePageLayout
+      .updateOne(
+        { _id: ObjectId("63b9b8cd6e2a6db52e5fa002") },
+        {
+          $set: {
+            homePageLayout: homePageLayout,
+          },
+        }
+      )
+      .then(function (result) {
+        // process result
+        console.log(result);
+        res.send(result);
+      });
+  });
+
+  // read all
+  app.get("/queenZoneReadHomePageLayout", function (req, res) {
+    queenzZoneHomePageLayout.find().toArray(function (err, result) {
+      res.send(result);
+    });
   });
 
   // end
